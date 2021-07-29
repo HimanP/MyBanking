@@ -1,0 +1,54 @@
+CREATE TABLE ORD  (
+ ORDID               NUMBER (4) NOT NULL,
+ ORDERDATE           DATE,
+ COMMPLAN            VARCHAR2(1),
+ CUSTID              NUMBER (6) NOT NULL,
+ SHIPDATE            DATE,
+ TOTAL               NUMBER (8,2) CONSTRAINT TOTAL_ZERO CHECK (TOTAL >= 0),
+ CONSTRAINT ORD_FOREIGN_KEY FOREIGN KEY (CUSTID) REFERENCES CUSTOMER (CUSTID),
+ CONSTRAINT ORD_PRIMARY_KEY PRIMARY KEY (ORDID));
+
+
+===================================
+
+CREATE TABLE CUSTOMER (
+ CUSTID              NUMBER (6) NOT NULL,
+ NAME                VARCHAR2(45),
+ ADDRESS             VARCHAR2(40),
+ CITY                VARCHAR2(30),
+ STATE               VARCHAR2(2),
+ ZIP                 VARCHAR2(9),
+ AREA                NUMBER (3),
+ PHONE               VARCHAR2(9),
+ REPID               NUMBER (4) NOT NULL,
+ CREDITLIMIT         NUMBER (9,2),
+ COMMENTS            LONG,
+ CONSTRAINT CUSTOMER_PRIMARY_KEY PRIMARY KEY (CUSTID),
+ CONSTRAINT CUSTID_ZERO CHECK (CUSTID > 0));
+
+========================================================
+
+create or replace function findOrderTotal(x IN number) return number
+    as
+       total_order_cost number;
+    begin
+	select sum(total) INTO total_order_cost from ord where custid=x;
+	return total_order_cost;
+     exception when
+      no_data_found then
+            return -1;
+   end;  
+/              
+
+===================================================
+
+create or replace procedure findCustomer(x IN number, y OUT varchar, z OUT varchar)
+    as
+    begin
+      select name,city into y,z from customer where custid = x;
+      exception when
+      no_data_found then
+            y:=null;
+            z:=null;
+   end;
+/                                                                                                                       
